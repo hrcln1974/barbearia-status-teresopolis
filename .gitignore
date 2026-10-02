@@ -1,0 +1,10 @@
+# arquivos do sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# temporários
+data/*.tmp
+
+# Não versionar fotos enviadas em produção se o repositório for público
+# uploads/gallery/*
