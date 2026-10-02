@@ -1,81 +1,10 @@
-<?php
-require __DIR__ . '/config.php';
-$s = settings();
-?>
-<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Painel | STATUS Barbearia</title>
-<link rel="stylesheet" href="assets/admin.css">
-</head>
-<body>
-<div id="login" class="login">
-  <div class="box">
-    <a class="back" href="index.php">← Voltar ao site</a>
-    <div class="mark">S</div>
-    <p class="eyebrow">ÁREA RESTRITA</p>
-    <h1>STATUS ADMIN</h1>
-    <p>Gerencie galeria, agendamentos e informações da barbearia.</p>
-    <form id="loginForm">
-      <label>Usuário<input id="user" autocomplete="username" value="admin"></label>
-      <label>Senha<input id="pass" type="password" autocomplete="current-password" placeholder="Digite sua senha"></label>
-      <button class="primary" type="submit">Entrar no painel</button>
-      <small id="loginMsg" class="msg"></small>
-    </form>
-  </div>
-</div>
-
-<div id="app" class="app hidden">
-  <aside>
-    <div class="sidebrand"><b>STATUS</b><small>BARBEARIA • ADMIN</small></div>
-    <button class="active" data-tab="dash">Dashboard</button>
-    <button data-tab="appointments">Agendamentos <span id="navPending" class="badge">0</span></button>
-    <button data-tab="gallery">Galeria</button>
-    <button data-tab="settings">Configurações</button>
-    <a href="index.php" target="_blank" class="side-site">↗ Abrir site</a>
-    <button id="logout" class="logout">Sair</button>
-  </aside>
-
-  <main>
-    <header class="mobile-head"><b>STATUS ADMIN</b><a href="index.php">Site</a></header>
-
-    <section id="dash" class="tab">
-      <div class="page-head"><div><p class="eyebrow">VISÃO GERAL</p><h1>Dashboard</h1></div></div>
-      <div class="stats">
-        <div><b id="statPhotos">0</b><span>Fotos na galeria</span></div>
-        <div><b id="statAppointments">0</b><span>Agendamentos</span></div>
-        <div><b id="statPending">0</b><span>Pendentes</span></div>
-      </div>
-      <div class="panel welcome"><h2>Painel conectado</h2><p>O site, o painel e os dados estão no mesmo servidor. Esta versão usa JSON, portanto não depende de MySQL/Firebase.</p><div class="quick"><button data-tab="appointments">Ver agendamentos</button><button data-tab="gallery">Gerenciar galeria</button><button data-tab="settings">Editar informações</button></div></div>
-    </section>
-
-    <section id="appointments" class="tab hidden">
-      <div class="page-head"><div><p class="eyebrow">CLIENTES</p><h1>Agendamentos</h1></div></div>
-      <div id="appointmentsList" class="appointments"></div>
-    </section>
-
-    <section id="gallery" class="tab hidden">
-      <div class="page-head"><div><p class="eyebrow">MÍDIA</p><h1>Galeria</h1></div></div>
-      <form id="uploadForm" class="panel upload">
-        <div><label>Imagem<input type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/gif" required></label><small>JPG, PNG, WEBP ou GIF • máximo 6 MB.</small></div>
-        <label>Título (opcional)<input name="title" maxlength="120" placeholder="Ex.: Corte degradê"></label>
-        <button class="primary">Adicionar foto</button>
-      </form>
-      <div id="galleryGrid" class="admin-gallery"></div>
-    </section>
-
-    <section id="settings" class="tab hidden">
-      <div class="page-head"><div><p class="eyebrow">NEGÓCIO</p><h1>Configurações</h1></div></div>
-      <form id="settingsForm" class="panel settings">
-        <label>Nome<input name="name"></label><label>Cidade<input name="city"></label><label>Telefone<input name="phone"></label>
-        <label>Instagram<input name="instagram" placeholder="https://instagram.com/..."></label><label>Facebook<input name="facebook" placeholder="https://facebook.com/..."></label>
-        <label>Endereço<input name="address"></label><label>Horário<input name="hours"></label><label>Descrição<textarea name="about"></textarea></label>
-        <button class="primary">Salvar configurações</button><small id="saveMsg" class="msg"></small>
-      </form>
-    </section>
-  </main>
-</div>
-<script src="assets/admin.js"></script>
-</body>
-</html>
+<?php require __DIR__.'/config.php'; $css=file_get_contents(__DIR__.'/assets/admin.css'); $js=file_get_contents(__DIR__.'/assets/admin.js'); ?>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Painel — STATUS Barbearia</title><link rel="icon" href="assets/favicon-32.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/admin.css?v=4.0.0"><style><?=$css?></style></head><body>
+<div id="login" class="login-screen"><div class="login-visual"><div class="login-photo"></div><div class="login-caption"><span>STATUS</span><small>BARBEARIA • TERESÓPOLIS</small></div></div><div class="login-panel"><a class="back" href="index.php">← Voltar para o site</a><div class="login-brand"><img src="assets/favicon.png" style="width:48px;height:48px;object-fit:contain"><div><b>STATUS</b><span>BARBEARIA</span></div></div><div class="kicker">ÁREA RESTRITA</div><h1>PAINEL<br><em>ADMINISTRATIVO.</em></h1><p>Gerencie sua barbearia de forma simples e profissional.</p><form id="loginForm"><label>Usuário<input id="user" autocomplete="username" value="admin"></label><label>Senha<input id="pass" type="password" autocomplete="current-password" placeholder="Digite sua senha"></label><button class="primary" type="submit">Entrar no painel <span>→</span></button><small id="loginMsg" class="msg"></small></form><div class="login-note">Acesso protegido • STATUS Barbearia</div></div></div>
+<div id="app" class="app hidden"><aside><div class="side-top"><div class="side-logo"><img src="assets/favicon.png" alt="STATUS"></div><div><b>STATUS</b><small>BARBEARIA</small></div></div><nav class="side-nav"><button class="active" data-tab="dash">⌂ &nbsp; Dashboard</button><button data-tab="appointments">◷ &nbsp; Agendamentos <span id="navPending">0</span></button><button data-tab="gallery">▧ &nbsp; Galeria</button><button data-tab="settings">⚙ &nbsp; Configurações</button></nav><div class="side-bottom"><a href="index.php" target="_blank">↗ Abrir site</a><button id="logout">↪ Sair</button></div></aside>
+<main><header class="topbar"><div><span class="mobile-title">STATUS ADMIN</span><span id="pageKicker">VISÃO GERAL</span><h1 id="pageTitle">Dashboard</h1></div><a class="view-site" href="index.php" target="_blank">Ver site ↗</a></header>
+<section id="dash" class="tab"><div class="stat-grid"><div class="stat"><span>FOTOS</span><strong id="statPhotos">0</strong><small>Na galeria</small></div><div class="stat"><span>AGENDAMENTOS</span><strong id="statAppointments">0</strong><small>Total registrado</small></div><div class="stat accent"><span>PENDENTES</span><strong id="statPending">0</strong><small>Aguardando atendimento</small></div></div><div class="dashboard-grid"><div class="panel"><div class="panel-head"><div><span>ACESSO RÁPIDO</span><h2>Gestão da barbearia</h2></div></div><div class="quick-grid"><button data-tab="appointments"><b>Agendamentos</b><small>Visualizar solicitações</small><span>→</span></button><button data-tab="gallery"><b>Galeria</b><small>Adicionar trabalhos</small><span>→</span></button><button data-tab="settings"><b>Configurações</b><small>Editar informações</small><span>→</span></button></div></div><div class="panel system"><span>SISTEMA</span><h2>STATUS ONLINE</h2><p>Site e painel conectados ao mesmo armazenamento. Não é necessário banco MySQL para esta versão.</p><div class="system-line">● PHP + JSON operacional</div></div></div></section>
+<section id="appointments" class="tab hidden"><div class="panel"><div class="panel-head"><div><span>CLIENTES</span><h2>Agendamentos</h2></div></div><div id="appointmentsList" class="appointment-list"></div></div></section>
+<section id="gallery" class="tab hidden"><div class="panel"><div class="panel-head"><div><span>MÍDIA</span><h2>Galeria de trabalhos</h2></div></div><form id="uploadForm" class="upload-row"><label class="drop"><input type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/gif" required><b>+ Selecionar imagem</b><small>JPG, PNG, WEBP ou GIF • até 6 MB</small></label><label>Título<input name="title" placeholder="Ex.: Corte degradê"></label><button class="primary">Adicionar foto →</button></form></div><div id="galleryGrid" class="admin-gallery"></div></section>
+<section id="settings" class="tab hidden"><div class="panel"><div class="panel-head"><div><span>NEGÓCIO</span><h2>Configurações</h2></div></div><form id="settingsForm" class="settings"><label>Nome da barbearia<input name="name"></label><label>Cidade<input name="city"></label><label>Telefone / WhatsApp<input name="phone"></label><label>Instagram<input name="instagram" placeholder="https://instagram.com/..."></label><label>Facebook<input name="facebook" placeholder="https://facebook.com/..."></label><label class="wide">Endereço<input name="address"></label><label>Horário de atendimento<input name="hours"></label><label class="wide">Descrição<textarea name="about"></textarea></label><div class="save-row"><button class="primary">Salvar configurações</button><small id="saveMsg" class="msg"></small></div></form></div></section></main></div>
+<script><?=$js?></script></body></html>

@@ -1,94 +1,29 @@
 <?php
-require __DIR__ . '/config.php';
-$s = settings();
-$g = array_reverse(gallery());
-$wa = preg_replace('/\D+/', '', (string)$s['phone']);
+require __DIR__.'/config.php'; $s=settings(); $g=array_reverse(gallery()); $wa=preg_replace('/\D+/','',(string)$s['phone']);
+function e($v){return htmlspecialchars((string)$v,ENT_QUOTES,'UTF-8');}
+$css=file_get_contents(__DIR__.'/assets/site.css');
 ?>
-<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?=htmlspecialchars($s['name'])?> | <?=htmlspecialchars($s['city'])?></title>
-<meta name="description" content="<?=htmlspecialchars($s['about'])?>">
-<link rel="stylesheet" href="assets/site.css">
-</head>
-<body>
-<header class="top">
-  <a class="brand" href="#inicio"><span>STATUS</span><small>BARBEARIA</small></a>
-  <button class="menu" aria-label="Abrir menu">☰</button>
-  <nav>
-    <a href="#inicio">Início</a><a href="#servicos">Serviços</a><a href="#galeria">Galeria</a><a href="#agendar">Agendar</a><a href="#contato">Contato</a>
-  </nav>
-  <a class="admin-link" href="admin.php" title="Área administrativa">🔒 Painel</a>
-</header>
-
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title><?=e($s['name'])?> — <?=e($s['city'])?></title><meta name="description" content="<?=e($s['about'])?>">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png"><link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css?v=4.0.0"><style><?=$css?></style></head><body>
+<header class="nav" id="nav"><div class="nav-inner"><a class="brand" href="#inicio"><img src="assets/favicon.png" alt="STATUS"><div class="brand-text"><b>STATUS</b><small>BARBEARIA</small></div></a>
+<nav><a href="#inicio">Início</a><a href="#servicos">Serviços</a><a href="#galeria">Galeria</a><a href="#agendar">Agendamento</a><a href="#contato">Contato</a></nav>
+<a class="nav-cta" href="#agendar">Agendar <span>→</span></a><button class="menu" aria-label="Menu">☰</button></div></header>
 <main>
-<section id="inicio" class="hero">
-  <div class="hero-copy">
-    <p class="eyebrow">TERESÓPOLIS • RIO DE JANEIRO</p>
-    <h1>Seu estilo.<br><strong>Sua STATUS.</strong></h1>
-    <p><?=htmlspecialchars($s['about'])?></p>
-    <div class="actions">
-      <a class="btn primary" href="#agendar">Agendar horário</a>
-      <a class="btn ghost" target="_blank" rel="noopener" href="https://wa.me/55<?=$wa?>">WhatsApp</a>
-    </div>
-  </div>
-  <div class="hero-card">
-    <div class="seal">S</div><b>STATUS</b><span>BARBEARIA</span><small>ESTILO • PRECISÃO • PRESENÇA</small>
-  </div>
-</section>
-
-<section id="servicos" class="section">
-  <p class="eyebrow">SERVIÇOS</p><h2>Experiência completa para você.</h2>
-  <div class="cards">
-    <article><span>01</span><h3>Corte na máquina</h3><p>Praticidade, acabamento limpo e visual alinhado.</p></article>
-    <article><span>02</span><h3>Corte na tesoura</h3><p>Precisão e personalização para o seu estilo.</p></article>
-    <article><span>03</span><h3>Barba & acabamento</h3><p>Contorno, alinhamento e detalhes que fazem diferença.</p></article>
-  </div>
-</section>
-
-<section id="galeria" class="section dark">
-  <p class="eyebrow">GALERIA</p><h2>Trabalhos da STATUS</h2>
-  <div class="gallery">
-    <?php if (!$g): ?><div class="empty">As fotos dos trabalhos serão adicionadas pelo painel administrativo.</div>
-    <?php else: foreach ($g as $item): ?>
-      <figure><img src="<?=htmlspecialchars((string)$item['url'])?>" alt="<?=htmlspecialchars((string)($item['title'] ?? 'Trabalho Barbearia STATUS'))?>" loading="lazy"><figcaption><?=htmlspecialchars((string)($item['title'] ?? ''))?></figcaption></figure>
-    <?php endforeach; endif; ?>
-  </div>
-</section>
-
-<section id="agendar" class="section booking">
-  <div>
-    <p class="eyebrow">AGENDAMENTO</p><h2>Reserve seu horário.</h2>
-    <p>Preencha os dados. O pedido fica registrado no painel e também é encaminhado pelo WhatsApp.</p>
-    <div class="contact-line"><b>Telefone</b><a href="tel:+55<?=$wa?>"><?=$s['phone']?></a></div>
-    <div class="contact-line"><b>Horário</b><span><?=htmlspecialchars($s['hours'])?></span></div>
-  </div>
-  <form id="bookingForm">
-    <input name="name" required placeholder="Seu nome">
-    <input name="phone" required placeholder="Seu WhatsApp">
-    <input name="date" required type="date">
-    <input name="time" required type="time">
-    <select name="service" required><option value="">Escolha o serviço</option><option>Corte na máquina</option><option>Corte na tesoura</option><option>Barba & acabamento</option><option>Corte + barba</option></select>
-    <textarea name="message" placeholder="Observação (opcional)"></textarea>
-    <button class="btn primary" type="submit">Enviar pelo WhatsApp</button>
-    <p id="bookingMsg" class="form-msg"></p>
-  </form>
-</section>
-
-<section id="contato" class="section contact">
-  <p class="eyebrow">CONTATO</p><h2>STATUS BARBEARIA</h2><p><?=htmlspecialchars($s['address'])?></p>
-  <div class="socials">
-    <?php if ($s['instagram']): ?><a target="_blank" rel="noopener" href="<?=htmlspecialchars($s['instagram'])?>">Instagram</a><?php endif; ?>
-    <?php if ($s['facebook']): ?><a target="_blank" rel="noopener" href="<?=htmlspecialchars($s['facebook'])?>">Facebook</a><?php endif; ?>
-    <a target="_blank" rel="noopener" href="https://wa.me/55<?=$wa?>">WhatsApp</a>
-  </div>
-</section>
-</main>
-
-<footer><span>© <?=date('Y')?> <?=htmlspecialchars($s['name'])?> • Teresópolis/RJ</span><a href="admin.php">🔒 Área do administrador</a></footer>
-<a class="float" target="_blank" rel="noopener" href="https://wa.me/55<?=$wa?>">WhatsApp</a>
-<script src="assets/site.js"></script>
-</body>
-</html>
+<section class="hero" id="inicio"><div class="hero-bg"></div><div class="hero-inner"><div class="hero-copy"><div class="eyebrow">TERESÓPOLIS • RIO DE JANEIRO</div>
+<h1>ESTILO QUE<br><em>MARCA.</em></h1><p><?=e($s['about'])?></p><div class="hero-actions"><a class="btn gold" href="#agendar">Agendar horário <span>→</span></a><a class="btn line" target="_blank" rel="noopener" href="https://wa.me/55<?=$wa?>">WhatsApp</a></div>
+<div class="hero-meta"><div><b>01</b><span>ATENDIMENTO<br>PERSONALIZADO</span></div><div><b>02</b><span>ACABAMENTO<br>PRECISO</span></div><div><b>03</b><span>ESTILO<br>AUTÊNTICO</span></div></div></div></div><div class="scroll"></div></section>
+<section class="intro section"><div class="section-kicker">01 / EXPERIÊNCIA</div><div class="intro-grid"><h2>MAIS QUE UM<br><em>CORTE.</em></h2><div><p>Um espaço pensado para quem valoriza presença, cuidado e personalidade. Na STATUS, cada detalhe importa — do primeiro contato ao acabamento final.</p><a class="text-link" href="#agendar">Conheça a experiência <span>→</span></a></div></div><div class="numbers"><div><strong>100%</strong><span>ATENÇÃO AOS DETALHES</span></div><div><strong>03</strong><span>SERVIÇOS PRINCIPAIS</span></div><div><strong>09–19h</strong><span>HORÁRIO DE ATENDIMENTO</span></div><div><strong>RJ</strong><span>TERESÓPOLIS</span></div></div></section>
+<section class="services section" id="servicos"><div class="section-head"><div><div class="section-kicker">02 / SERVIÇOS</div><h2>SEU VISUAL.<br><em>NOSSO TRABALHO.</em></h2></div><p>Atendimento profissional e acabamento pensado para cada cliente.</p></div>
+<div class="service-grid"><article class="service"><div class="service-image"><img src="assets/corte-maquina.png" alt="Corte na máquina"></div><div class="service-body"><span>01</span><h3>Corte na máquina</h3><p>Praticidade, precisão e acabamento limpo.</p><a href="#agendar">Agendar →</a></div></article>
+<article class="service"><div class="service-image"><img src="assets/corte-tesoura.png" alt="Corte na tesoura"></div><div class="service-body"><span>02</span><h3>Corte na tesoura</h3><p>Personalização e técnica para o seu estilo.</p><a href="#agendar">Agendar →</a></div></article>
+<article class="service"><div class="service-image"><img src="assets/corte5.png" alt="Barba e acabamento"></div><div class="service-body"><span>03</span><h3>Barba & acabamento</h3><p>Contorno, alinhamento e detalhes impecáveis.</p><a href="#agendar">Agendar →</a></div></article></div></section>
+<section class="gallery-section section" id="galeria"><div class="section-head"><div><div class="section-kicker">03 / GALERIA</div><h2>TRABALHOS<br><em>STATUS.</em></h2></div><p>Alguns dos trabalhos que representam nosso cuidado com cada detalhe.</p></div><div class="gallery-grid">
+<?php if(!$g): ?><div class="gallery-placeholder"><span>STATUS</span><p>As fotos dos trabalhos serão adicionadas pelo painel administrativo.</p></div><?php else: foreach($g as $item): ?><figure><img src="<?=e($item['url'])?>" alt="<?=e($item['title']??'Trabalho STATUS')?>" loading="lazy"><figcaption><?=e($item['title']??'Barbearia STATUS')?></figcaption></figure><?php endforeach; endif;?></div></section>
+<section class="booking section" id="agendar"><div><div class="section-kicker">04 / AGENDAMENTO</div><h2>RESERVE SEU<br><em>HORÁRIO.</em></h2><p>Escolha seu serviço e envie a solicitação. O pedido fica registrado no painel e é encaminhado para o WhatsApp.</p><div class="contact-line"><b>WhatsApp</b><a target="_blank" href="https://wa.me/55<?=$wa?>"><?=$s['phone']?></a></div><div class="contact-line"><b>Atendimento</b><span><?=e($s['hours'])?></span></div></div>
+<form id="bookingForm" class="booking-form"><label>Nome<input name="name" required placeholder="Seu nome"></label><label>WhatsApp<input name="phone" required placeholder="(21) 99999-9999"></label><label>Data<input name="date" required type="date"></label><label>Horário<input name="time" required type="time"></label><label class="full">Serviço<select name="service" required><option value="">Selecione</option><option>Corte na máquina</option><option>Corte na tesoura</option><option>Barba & acabamento</option><option>Corte + barba</option></select></label><label class="full">Observação<textarea name="message" placeholder="Alguma preferência?"></textarea></label><button class="btn gold" type="submit">Enviar solicitação →</button><p id="bookingMsg" class="form-msg"></p></form></section>
+<section class="contact section" id="contato"><div class="section-kicker">05 / CONTATO</div><h2>STATUS <em>BARBEARIA.</em></h2><p><?=e($s['address'])?></p><div class="socials"><?php if($s['instagram']):?><a target="_blank" href="<?=e($s['instagram'])?>">Instagram</a><?php endif;?><?php if($s['facebook']):?><a target="_blank" href="<?=e($s['facebook'])?>">Facebook</a><?php endif;?><a target="_blank" href="https://wa.me/55<?=$wa?>">WhatsApp</a><a href="admin.php">Área administrativa</a></div></section>
+</main><footer class="footer"><span>© <?=date('Y')?> <?=e($s['name'])?> • Teresópolis/RJ</span><a href="admin.php">🔐 Painel administrativo</a></footer><a class="float-wa" target="_blank" href="https://wa.me/55<?=$wa?>" aria-label="WhatsApp">◔</a>
+<script src="assets/site.js?v=4.0.0"></script></body></html>

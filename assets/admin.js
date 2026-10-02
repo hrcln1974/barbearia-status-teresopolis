@@ -1,82 +1,17 @@
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-let gallery = [], appointments = [], settings = {};
-
-function esc(v='') {
-  return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-}
-async function api(action, options={}) {
-  const r = await fetch(`api.php?action=${encodeURIComponent(action)}`, options);
-  let j = {};
-  try { j = await r.json(); } catch {}
-  if (!r.ok) throw new Error(j.error || `Erro HTTP ${r.status}`);
-  return j;
-}
-function showTab(name) {
-  $$('.tab').forEach(t => t.classList.toggle('hidden', t.id !== name));
-  $$('aside button[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
-  if (name === 'dash') loadDashboard();
-  if (name === 'appointments') loadAppointments();
-  if (name === 'gallery') loadGallery();
-  if (name === 'settings') loadSettings();
-}
-async function loadDashboard() {
-  const j = await api('dashboard');
-  $('#statPhotos').textContent = j.stats.photos;
-  $('#statAppointments').textContent = j.stats.appointments;
-  $('#statPending').textContent = j.stats.pending;
-  $('#navPending').textContent = j.stats.pending;
-}
-async function loadGallery() {
-  const j = await api('gallery'); gallery = j.items || [];
-  $('#galleryGrid').innerHTML = gallery.map(x => `
-    <article><img src="${esc(x.url)}" alt="${esc(x.title || 'Foto da galeria')}" loading="lazy">
-      <div><span>${esc(x.title || 'Sem título')}</span><button class="danger" data-del="${esc(x.id)}">Excluir</button></div>
-    </article>`).join('') || '<div class="panel empty">Nenhuma foto cadastrada.</div>';
-}
-async function loadAppointments() {
-  const j = await api('appointments'); appointments = j.items || [];
-  $('#appointmentsList').innerHTML = appointments.map(x => `
-    <article class="appointment">
-      <div class="appt-main"><strong>${esc(x.name)}</strong><span>${esc(x.service)}</span><small>${esc(x.date)} às ${esc(x.time)} • ${esc(x.phone)}</small>${x.message ? `<p>${esc(x.message)}</p>`:''}</div>
-      <div class="appt-actions"><span class="status ${esc(x.status||'pending')}">${esc(x.status||'pending')}</span>
-      <select data-status="${esc(x.id)}"><option value="pending">Pendente</option><option value="confirmed">Confirmado</option><option value="done">Concluído</option><option value="cancelled">Cancelado</option></select></div>
-    </article>`).join('') || '<div class="panel empty">Nenhum agendamento registrado.</div>';
-  appointments.forEach(x => { const el = document.querySelector(`select[data-status="${CSS.escape(x.id)}"]`); if(el) el.value=x.status||'pending'; });
-}
-async function loadSettings() {
-  const j = await api('settings'); settings = j.settings || {};
-  Object.entries(settings).forEach(([k,v]) => { const el = document.querySelector(`[name="${CSS.escape(k)}"]`); if(el) el.value=v ?? ''; });
-}
-$('#loginForm').addEventListener('submit', async e => {
-  e.preventDefault(); $('#loginMsg').textContent = 'Entrando...';
-  try {
-    await api('login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:$('#user').value,pass:$('#pass').value})});
-    $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); showTab('dash');
-  } catch(err) { $('#loginMsg').textContent = err.message; }
-});
-$$('aside button[data-tab], .quick button[data-tab]').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
-$('#logout').addEventListener('click', async () => { try { await api('logout',{method:'POST'}); } finally { location.reload(); } });
-$('#uploadForm').addEventListener('submit', async e => {
-  e.preventDefault(); const btn=e.submitter; btn.disabled=true;
-  try { const j=await api('gallery',{method:'POST',body:new FormData(e.target)}); if(j.ok){e.target.reset();await loadGallery();await loadDashboard();} }
-  catch(err){ alert(err.message); } finally { btn.disabled=false; }
-});
-$('#galleryGrid').addEventListener('click', async e => {
-  const id=e.target.dataset.del; if(!id)return; if(!confirm('Excluir esta foto?'))return;
-  try { await api('gallery_delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})}); await loadGallery(); await loadDashboard(); }
-  catch(err){alert(err.message);}
-});
-$('#settingsForm').addEventListener('submit', async e => {
-  e.preventDefault(); $('#saveMsg').textContent='Salvando...';
-  try { await api('settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(e.target)))}); $('#saveMsg').textContent='Configurações salvas com sucesso.'; }
-  catch(err){$('#saveMsg').textContent=err.message;}
-});
-$('#appointmentsList').addEventListener('change', async e => {
-  const id=e.target.dataset.status; if(!id)return;
-  try { await api('appointment_status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:e.target.value})}); await loadAppointments(); await loadDashboard(); }
-  catch(err){alert(err.message);}
-});
-(async function init(){
-  try { const j=await api('session'); if(j.authenticated){$('#login').classList.add('hidden');$('#app').classList.remove('hidden');showTab('dash');} } catch {}
-})();
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+async function api(action,opt={}){const r=await fetch(`api.php?action=${encodeURIComponent(action)}`,{credentials:'same-origin',...opt});let j={};try{j=await r.json()}catch{}if(!r.ok)throw Error(j.error||`Erro HTTP ${r.status}`);return j}
+function tab(name){$$('.tab').forEach(x=>x.classList.toggle('hidden',x.id!==name));$$('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===name));const m={dash:['VISÃO GERAL','Dashboard'],appointments:['CLIENTES','Agendamentos'],gallery:['MÍDIA','Galeria de trabalhos'],settings:['NEGÓCIO','Configurações']};$('#pageKicker').textContent=m[name][0];$('#pageTitle').textContent=m[name][1];if(name==='dash')dash();if(name==='appointments')appointments();if(name==='gallery')gallery();if(name==='settings')settings()}
+async function dash(){const j=await api('dashboard');$('#statPhotos').textContent=j.stats.photos;$('#statAppointments').textContent=j.stats.appointments;$('#statPending').textContent=j.stats.pending;$('#navPending').textContent=j.stats.pending}
+function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function label(v){return {pending:'Pendente',confirmed:'Confirmado',done:'Concluído',cancelled:'Cancelado'}[v]||v}
+async function appointments(){const j=await api('appointments'),a=j.items||[];$('#appointmentsList').innerHTML=a.length?a.map(x=>`<article class="appt"><div><strong>${esc(x.name)}</strong><b>${esc(x.service)}</b><small>${esc(x.date)} • ${esc(x.time)} • ${esc(x.phone)}</small>${x.message?`<p>${esc(x.message)}</p>`:''}</div><div class="appt-status"><span class="status ${esc(x.status||'pending')}">${label(x.status||'pending')}</span><select data-status="${esc(x.id)}"><option value="pending">Pendente</option><option value="confirmed">Confirmado</option><option value="done">Concluído</option><option value="cancelled">Cancelado</option></select></div></article>`).join(''):'<div class="empty">Nenhum agendamento registrado.</div>';a.forEach(x=>{const e=document.querySelector(`select[data-status="${CSS.escape(x.id)}"]`);if(e)e.value=x.status||'pending'})}
+async function gallery(){const j=await api('gallery'),g=j.items||[];$('#galleryGrid').innerHTML=g.length?g.map(x=>`<article><img src="${esc(x.url)}" alt="${esc(x.title||'Trabalho STATUS')}"><div><span>${esc(x.title||'Sem título')}</span><button class="danger" data-del="${esc(x.id)}">Excluir</button></div></article>`).join(''):'<div class="empty">Nenhuma foto cadastrada.</div>'}
+async function settings(){const j=await api('settings');for(const[k,v]of Object.entries(j.settings||{})){const e=document.querySelector(`[name="${CSS.escape(k)}"]`);if(e)e.value=v??''}}
+$$('button[data-tab]').forEach(b=>b.addEventListener('click',()=>tab(b.dataset.tab)));
+$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;$('#loginMsg').textContent='Validando acesso...';try{const j=await api('login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:$('#user').value,pass:$('#pass').value})});if(j.ok){$('#login').classList.add('hidden');$('#app').classList.remove('hidden');tab('dash')}}catch(err){$('#loginMsg').textContent=err.message}finally{b.disabled=false}});
+$('#logout').addEventListener('click',async()=>{await api('logout',{method:'POST'});location.reload()});
+$('#uploadForm').addEventListener('submit',async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;try{const j=await api('gallery',{method:'POST',body:new FormData(e.target)});if(j.ok){e.target.reset();await gallery();await dash()}}catch(err){alert(err.message)}finally{b.disabled=false}});
+$('#galleryGrid').addEventListener('click',async e=>{const id=e.target.dataset.del;if(!id)return;if(!confirm('Excluir esta imagem?'))return;try{await api('gallery_delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});await gallery();await dash()}catch(err){alert(err.message)}});
+$('#appointmentsList').addEventListener('change',async e=>{const id=e.target.dataset.status;if(!id)return;try{await api('appointment_status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:e.target.value})});await appointments();await dash()}catch(err){alert(err.message)}});
+$('#settingsForm').addEventListener('submit',async e=>{e.preventDefault();$('#saveMsg').textContent='Salvando...';try{await api('settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(e.target)))});$('#saveMsg').textContent='Alterações salvas com sucesso.'}catch(err){$('#saveMsg').textContent=err.message}});
+(async()=>{try{const j=await api('session');if(j.authenticated){$('#login').classList.add('hidden');$('#app').classList.remove('hidden');tab('dash')}}catch{}})();
