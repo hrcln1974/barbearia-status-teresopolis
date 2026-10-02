@@ -1,4 +1,2 @@
 Options -Indexes
-<FilesMatch "\.(php|phtml|php[0-9]*)$">
-  Require all denied
-</FilesMatch>
+<FilesMatch "\.(php|phtml|php[0-9]*)$">Require all denied</FilesMatch>
