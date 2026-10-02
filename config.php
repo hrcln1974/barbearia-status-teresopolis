@@ -1,38 +1,16 @@
 <?php
 declare(strict_types=1);
-session_start();
-define('BASE_DIR', __DIR__);
-define('DATA_DIR', BASE_DIR . DIRECTORY_SEPARATOR . 'data');
-define('GALLERY_DIR', BASE_DIR . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'gallery');
-define('SETTINGS_FILE', DATA_DIR . DIRECTORY_SEPARATOR . 'settings.json');
-define('GALLERY_FILE', DATA_DIR . DIRECTORY_SEPARATOR . 'gallery.json');
-
-if (!is_dir(DATA_DIR)) @mkdir(DATA_DIR, 0755, true);
-if (!is_dir(GALLERY_DIR)) @mkdir(GALLERY_DIR, 0755, true);
-
-function json_read(string $file, array $fallback=[]): array {
-    if (!is_file($file)) return $fallback;
-    $raw = @file_get_contents($file);
-    $data = json_decode((string)$raw, true);
-    return is_array($data) ? $data : $fallback;
-}
-function json_write(string $file, array $data): bool {
-    return (bool)@file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES), LOCK_EX);
-}
-function settings(): array {
-    return json_read(SETTINGS_FILE, [
-        'name'=>'Barbearia STATUS','city'=>'Teresópolis - RJ','phone'=>'21991525359',
-        'instagram'=>'','facebook'=>'','hours'=>'Segunda a sábado • 09h às 19h',
-        'address'=>'Teresópolis - RJ',
-        'whatsapp_message'=>'Olá! Gostaria de agendar um horário na Barbearia STATUS.'
-    ]);
-}
-function gallery(): array { return json_read(GALLERY_FILE, []); }
-function is_admin(): bool { return !empty($_SESSION['status_admin']); }
-function require_admin(): void { if (!is_admin()) { header('Location: admin.php'); exit; } }
-function e(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); }
-function whatsapp_url(string $phone, string $message=''): string {
-    $digits = preg_replace('/\D+/', '', $phone);
-    if (str_starts_with($digits, '55') === false) $digits = '55'.$digits;
-    return 'https://wa.me/'.$digits.($message !== '' ? '?text='.rawurlencode($message) : '');
-}
+if (session_status() === PHP_SESSION_NONE) session_start();
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'status123';
+const DATA_DIR = __DIR__ . '/data';
+const GALLERY_DIR = __DIR__ . '/uploads/gallery';
+function ensure_dirs(): void { if (!is_dir(DATA_DIR)) mkdir(DATA_DIR,0755,true); if (!is_dir(GALLERY_DIR)) mkdir(GALLERY_DIR,0755,true); }
+function read_json(string $file, array $default=[]): array { ensure_dirs(); if (!is_file($file)) { write_json($file,$default); return $default; } $d=json_decode((string)file_get_contents($file),true); return is_array($d)?$d:$default; }
+function write_json(string $file,array $data): bool { ensure_dirs(); return file_put_contents($file,json_encode($data,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES),LOCK_EX)!==false; }
+function settings(): array { return read_json(DATA_DIR.'/settings.json',[ 'name'=>'Barbearia STATUS','city'=>'Teresópolis - RJ','phone'=>'21991525359','instagram'=>'','facebook'=>'','address'=>'Teresópolis - RJ','hours'=>'Segunda a sábado, 09h às 19h','about'=>'Cortes modernos, acabamento preciso e atendimento de qualidade.' ]); }
+function gallery(): array { return read_json(DATA_DIR.'/gallery.json',[]); }
+function appointments(): array { return read_json(DATA_DIR.'/appointments.json',[]); }
+function logged(): bool { return !empty($_SESSION['admin']); }
+function json_response(array $data,int $code=200): never { http_response_code($code); header('Content-Type: application/json; charset=utf-8'); echo json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); exit; }
+ensure_dirs();
