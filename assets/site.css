@@ -126,7 +126,7 @@ nav a:hover {
       rgba(0, 0, 0, 0.1) 70%,
       rgba(0, 0, 0, 0.4)
     ),
-    url("banner-status.png");
+    url("assets/banner-status.png");
   background-size: cover;
   background-position: center;
   filter: saturate(0.95);
@@ -540,7 +540,7 @@ nav a:hover {
     inset: 68px 0 0;
     background-image:
       linear-gradient(180deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.92) 70%),
-      url("banner-status-mobile.jpg");
+      url("assets/banner-status-mobile.jpg");
     background-position: center top;
   }
   .hero-inner {
